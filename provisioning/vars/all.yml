@@ -1,0 +1,29 @@
+user: vagrant
+home_dir: /home/vagrant
+nginx:
+  user: "www-data"
+  document_root: /home/vagrant
+  conf_path: /etc/nginx/conf.d
+  vhost_path: /etc/nginx/sites-enabled
+  default_vhost_path: /etc/nginx/sites-enabled/default
+  worker_processes: "1"
+  worker_connections: "1024"
+  error_log: "/var/log/nginx/error.log warn"
+  access_log: "/var/log/nginx/access.log main buffer=16k"
+  sendfile: "on"
+  tcp_nopush: "on"
+  tcp_nodelay: "on"
+  keepalive_timeout: "65"
+  keepalive_requests: "100"
+  client_max_body_size: "64m"
+  proxy_cache_path: ""
+  remove_default_vhost: false
+  vhosts:
+  - listen: "80 default_server"
+    server_name: "node-webcrawler.dev"
+    root: "/var/www/node-webcrawler.dev"
+    index: "index.html index.htm"
+nodejs:
+  version: v4.2.1
+ruby:
+  version: 2.2.3

@@ -1,0 +1,11 @@
+- hosts: all
+  sudo: yes
+  pre_tasks:
+    - name: Updates apt cache
+      action: apt update_cache=true
+  vars_files:
+    - vars/all.yml
+  roles:
+    - nginx
+    # - ruby
+    # - nodejs

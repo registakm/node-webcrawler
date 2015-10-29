@@ -1,0 +1,40 @@
+- name: check installed nodebrew
+  shell: $SHELL -lc "which nodebrew"
+  sudo_user: "{{ user }}"
+  ignore_errors: true
+  register: nodebrew_installed
+
+- name: install nodebrew
+  shell: curl -L git.io/nodebrew | perl - setup
+  sudo_user: "{{ user }}"
+  when: nodebrew_installed|failed
+
+- name: put nodebrew path setting script
+  template: src=nodebrew.sh.j2 dest=/etc/profile.d/nodebrew.sh owner=root group=root mode=0755
+  when: nodebrew_installed|failed
+
+- name: check installed node.js
+  shell: $SHELL -lc "which node"
+  sudo_user: "{{ user }}"
+  ignore_errors: true
+  register: nodejs_installed
+
+- name: check installed node.js version
+  shell: $SHELL -lc "nodebrew ls | grep {{ nodejs.version }}"
+  sudo_user: "{{ user }}"
+  ignore_errors: true
+  when: nodejs_installed|success
+  register: nodejs_target_version_exist
+
+- name: install node.js
+  shell: $SHELL -lc "nodebrew install-binary {{ nodejs.version }}"
+  sudo_user: "{{ user }}"
+  when: (nodejs_installed|failed) or (nodejs_target_version_exist|failed)
+
+- name: select node.js version
+  shell: $SHELL -lc "nodebrew use {{ nodejs.version }}"
+  sudo_user: "{{ user }}"
+
+- name: npm update
+  shell: $SHELL -lc "npm update -g npm"
+  sudo_user: "{{ user }}"

@@ -1,0 +1,47 @@
+- name: install packages required to build ruby
+  apt: name={{item}}
+  with_items:
+    - build-essential
+    - autoconf
+    - bison
+    - libssl-dev
+    - libyaml-dev
+    - libreadline6-dev
+    - zlib1g-dev
+    - libncurses5-dev
+    - libffi-dev
+    - libgdbm3
+    - libgdbm-dev
+
+- name: install packages git
+  apt: name=git
+
+- name: install rbenv
+  git: repo=https://github.com/sstephenson/rbenv.git
+       dest={{ home_dir }}/.rbenv
+  sudo_user: "{{ user }}"
+
+- name:  put rbenv path setting script
+  template: src=rbenv.sh.j2 dest=/etc/profile.d/rbenv.sh owner=root group=root mode=0755
+
+- name: install ruby-build
+  git: repo=https://github.com/sstephenson/ruby-build.git
+       dest={{ home_dir }}/.rbenv/plugins/ruby-build
+  sudo_user: "{{ user }}"
+
+- name: check installed ruby version
+  shell: $SHELL -lc "rbenv versions | grep {{ ruby.version }}"
+  sudo_user: "{{ user }}"
+  ignore_errors: true
+  always_run: yes
+  register: ruby_installed
+
+- name: install ruby
+  shell: $SHELL -lc "rbenv install {{ ruby.version }}"
+  sudo_user: "{{ user }}"
+  when: ruby_installed.rc !=0
+
+- name: select ruby version
+  shell: $SHELL -lc "rbenv global {{ ruby.version }} && rbenv rehash"
+  sudo_user: "{{ user }}"
+  when: ruby_installed.rc !=0

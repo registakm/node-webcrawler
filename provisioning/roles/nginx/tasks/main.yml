@@ -1,0 +1,28 @@
+- name: install nginx
+  apt: name=nginx
+
+- name: Define nginx_user.
+  set_fact:
+    nginx_user: "{{ nginx.user }}"
+  when: nginx.user is not defined
+
+- name: Copy nginx configuration in place.
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart nginx
+
+- name: Ensure nginx is started and enabled to start at boot.
+  service: name=nginx state=started enabled=yes
+
+- name: Remove default nginx vhost config file (if configured).
+  file:
+    path: "{{ nginx.default_vhost_path }}"
+    state: absent
+  when: nginx.remove_default_vhost
+  notify: restart nginx
+
+- include: vhosts.yml
