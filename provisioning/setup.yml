@@ -7,5 +7,5 @@
     - vars/all.yml
   roles:
     - nginx
-    # - ruby
-    # - nodejs
+    - ruby
+    - nodejs
